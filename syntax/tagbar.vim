@@ -28,6 +28,8 @@ let s:pattern = '\(\S\@<![' . s:ics . ' ]\)\@<=#\([^-+# ]\)\@='
 execute "syntax match TagbarVisibilityProtected '" . s:pattern . "'"
 let s:pattern = '\(\S\@<![' . s:ics . ' ]\)\@<=-\([^-+# ]\)\@='
 execute "syntax match TagbarVisibilityPrivate '" . s:pattern . "'"
+let s:pattern = '\(\S\@<![' . s:ics . '\-+# ]\)\@<=\[.\+\]\([^\] ]\)\@='
+execute "syntax match TagbarProperty '" . s:pattern . "'"
 
 unlet s:pattern
 
@@ -47,7 +49,9 @@ highlight default link TagbarKind       Identifier
 highlight default link TagbarNestedKind TagbarKind
 highlight default link TagbarScope      Title
 highlight default link TagbarType       Type
-highlight default link TagbarSignature  SpecialKey
+" highlight default link TagbarSignature  SpecialKey
+" highlight default link TagbarSignature  Conceal
+highlight default link TagbarSignature  LineNr
 highlight default link TagbarPseudoID   NonText
 highlight default link TagbarFoldIcon   Statement
 highlight default link TagbarHighlight  Search
@@ -58,6 +62,7 @@ highlight default TagbarAccessPrivate   guifg=Red   ctermfg=Red
 highlight default link TagbarVisibilityPublic    TagbarAccessPublic
 highlight default link TagbarVisibilityProtected TagbarAccessProtected
 highlight default link TagbarVisibilityPrivate   TagbarAccessPrivate
+highlight default link TagbarProperty MoreMsg
 
 let b:current_syntax = 'tagbar'
 

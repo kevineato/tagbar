@@ -4,6 +4,14 @@ let s:visibility_symbols = {
     \ 'private'   : '-'
 \ }
 
+" \ 'pure'    : '',
+" \ 'virtual' : '勺'
+let s:prop_symbols = {
+    \ 'static'  : '⚡',
+    \ 'pure'    : '',
+    \ 'virtual' : ''
+\ }
+
 function! tagbar#prototypes#basetag#new(name) abort
     let newobj = {}
 
@@ -90,6 +98,24 @@ function! s:_getPrefix() abort dict
             let prefix .= s:visibility_symbols.private
         else
             let prefix .= ' '
+        endif
+    endif
+
+    if has_key(self.fields, 'properties')
+        if self.fields.properties =~ 'virtual' || self.fields.properties =~ 'pure' || self.fields.properties =~ 'static'
+            let prefix .= '['
+        endif
+        if self.fields.properties =~ 'static'
+            let prefix .= s:prop_symbols.static
+        endif
+        if self.fields.properties =~ 'virtual'
+            let prefix .= s:prop_symbols.virtual
+        endif
+        if self.fields.properties =~ 'pure'
+            let prefix .= s:prop_symbols.pure
+        endif
+        if self.fields.properties =~ 'virtual' || self.fields.properties =~ 'pure' || self.fields.properties =~ 'static'
+            let prefix .= ']'
         endif
     endif
 

@@ -1644,6 +1644,12 @@ function! s:add_tag_recursive(parent, taginfo, pathlist) abort
         let parents = name_siblings
     endif
 
+    if len(parents) == 1
+        let parent = parents[0]
+        if parent.fields.kind !~# a:taginfo.typeinfo.scope2kind[a:taginfo.scope]
+            let parents = []
+        endif
+    endif
     if empty(parents)
         " No parents found, so either the parent is a pseudotag or it hasn't
         " been processed yet. Create a pseudotag as a placeholder; if the
@@ -1660,30 +1666,37 @@ function! s:add_tag_recursive(parent, taginfo, pathlist) abort
         else
             call grandparent.addChild(parent)
         endif
-    elseif len(parents) == 1
-        let parent = parents[0]
     else
+        for candidate in parents
+            if candidate.fields.kind =~# a:taginfo.typeinfo.scope2kind[a:taginfo.scope] ||
+             \ candidate.fields.kind =~# '?'
+                let parent = candidate
+                break
+            endif
+        endfor
         " If there are multiple possible parents (c.f. issue #139, or tags
         " with the same name but a different kind) then we will pick the one
         " that is closest above the current tag as a heuristic.
 
         " Start at line 0 so that pseudotags get included
-        let minline = 0
-        for candidate in parents
-            " If the line number of the current tag is 0 then we have no way
-            " of determining the best candidate by comparing line numbers.
-            " Just use the first one we have.
-            if a:taginfo.fields.line == 0
-                let parent = candidate
-                break
-            endif
+        if !exists('parent')
+            let minline = 0
+            for candidate in parents
+                " If the line number of the current tag is 0 then we have no way
+                " of determining the best candidate by comparing line numbers.
+                " Just use the first one we have.
+                if a:taginfo.fields.line == 0
+                    let parent = candidate
+                    break
+                endif
 
-            if candidate.fields.line <= a:taginfo.fields.line &&
-             \ candidate.fields.line >= minline
-                let parent = candidate
-                let minline = candidate.fields.line
-            endif
-        endfor
+                if candidate.fields.line <= a:taginfo.fields.line &&
+                 \ candidate.fields.line >= minline
+                    let parent = candidate
+                    let minline = candidate.fields.line
+                endif
+            endfor
+        endif
 
         if !exists('parent')
             " If we still haven't found a parent it must be below the current
@@ -2164,7 +2177,7 @@ function! s:HighlightTag(openfolds, ...) abort
         call winline()
 
         let foldpat = '[' . g:tagbar#icon_open . g:tagbar#icon_closed . ' ]'
-        let pattern = '/^\%' . tagline . 'l\s*' . foldpat . '[-+# ]\?\zs[^( ]\+\ze/'
+        let pattern = '/^\%' . tagline . 'l\s*' . foldpat . '[-+# ]\?\(\[.\+\]\)\?\zs[^( ]\+\ze/'
         call tagbar#debug#log("Highlight pattern: '" . pattern . "'")
         if hlexists('TagbarHighlight') " Safeguard in case syntax highlighting is disabled
             execute 'match TagbarHighlight ' . pattern
