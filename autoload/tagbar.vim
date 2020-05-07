@@ -1646,7 +1646,9 @@ function! s:add_tag_recursive(parent, taginfo, pathlist) abort
 
     if len(parents) == 1
         let parent = parents[0]
-        if parent.fields.kind !~# a:taginfo.typeinfo.scope2kind[a:taginfo.scope]
+        if parent.fields.kind !~# a:taginfo.typeinfo.scope2kind[a:taginfo.scope] &&
+         \ !has_key(a:taginfo.typeinfo.kind2scope, parent.fields.kind) &&
+         \ parent.fields.kind !~# '?'
             let parents = []
         endif
     endif
