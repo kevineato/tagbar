@@ -18,7 +18,11 @@ function! s:strfmt() abort dict
 
     let suffix = get(self.fields, 'signature', '')
     if has_key(typeinfo.kind2scope, self.fields.kind)
-        let suffix .= ' : ' . typeinfo.kind2scope[self.fields.kind]
+        if self.fields.kind ==# '?' && self.fileinfo.ftype ==# 'cpp'
+            let suffix .= ' : ' . typeinfo.kind2scope['n']
+        else
+            let suffix .= ' : ' . typeinfo.kind2scope[self.fields.kind]
+        endif
     endif
 
     return self._getPrefix() . self.name . '*' . suffix
