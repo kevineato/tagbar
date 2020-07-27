@@ -1303,7 +1303,7 @@ function! s:ExecuteCtagsOnFile(fname, realfname, typeinfo) abort
 
         " universal-ctags deprecated this argument name
         if s:ctags_is_uctags
-            let ctags_args += [ '--extras=' ]
+            let ctags_args += [ '--extras=+F' ]
         else
             let ctags_args += [ '--extra=' ]
         endif
@@ -1314,7 +1314,6 @@ function! s:ExecuteCtagsOnFile(fname, realfname, typeinfo) abort
                           \ '--format=2',
                           \ '--excmd=pattern',
                           \ '--fields=nksSaf',
-                          \ '--file-scope=yes',
                           \ '--sort=no',
                           \ '--append=no'
                           \ ]
@@ -1355,6 +1354,21 @@ function! s:ExecuteCtagsOnFile(fname, realfname, typeinfo) abort
         let ctags_bin = g:tagbar_ctags_bin
     endif
 
+    " let header_file = ''
+    " if fnamemodify(a:realfname, ':e') ==# 'cpp'
+        " let h_fname = fnamemodify(a:realfname, ':r')
+        " if filereadable(h_fname . '.h')
+            " let header_file = h_fname . '.h'
+        " elseif filereadable(h_fname . '.hpp')
+            " let header_file = h_fname . '.hpp'
+        " endif
+    " endif
+
+    " if !empty(header_file)
+        " let ctags_cmd = s:EscapeCtagsCmd(ctags_bin, ctags_args, a:fname, header_file)
+    " else
+        " let ctags_cmd = s:EscapeCtagsCmd(ctags_bin, ctags_args, a:fname)
+    " endif
     let ctags_cmd = s:EscapeCtagsCmd(ctags_bin, ctags_args, a:fname)
     if ctags_cmd ==# ''
         return ''
@@ -2852,6 +2866,8 @@ function! s:EscapeCtagsCmd(ctags_bin, args, ...) abort
     "if a filename was specified, add filename as final argument to ctags_cmd.
     if a:0 == 1
         let ctags_cmd .= ' ' . shellescape(a:1)
+    " elseif a:0 == 2
+        " let ctags_cmd .= ' ' . shellescape(a:2) . ' ' . shellescape(a:1)
     endif
 
     if exists('+shellslash')
